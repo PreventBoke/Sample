@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body { background: #222; color: #fff; font-family: sans-serif; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; margin: 0; }
+        #radar-container { position: relative; margin-bottom: 20px; }
+        #radar { background: #1a4d1a; border: 8px solid #444; border-radius: 50%; box-shadow: 0 0 30px rgba(0,255,0,0.2); }
+        .controls { background: rgba(255,255,255,0.1); padding: 15px; border-radius: 10px; width: 300px; text-align: center; }
+        input[type=range] { width: 100%; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div id="radar-container">
+        <canvas id="radar" width="400" height="400"></canvas>
+    </div>
+
+    <div class="controls">
+        <label>広域 ← スケール調整 → 詳細</label><br>
+        <input type="range" id="scaleRange" min="1" max="1000" value="15">
+    </div>
+
+<script>
+const canvas = document.getElementById('radar');
+const ctx = canvas.getContext('2d');
+const scaleInput = document.getElementById('scaleRange');
+
+// 1. データ設定 (東京駅周辺の景勝地)
+const currentPos = { lat: 35.6812, lng: 139.7671 }; 
+const locations = [
+    { name: "皇居外苑", lat: 35.6813, lng: 139.7582 },
+    { name: "浜離宮", lat: 35.6596, lng: 139.7633 },
+    { name: "浅草寺", lat: 35.7148, lng: 139.7967 }
+];
+
+const centerX = canvas.width / 2;
+const centerY = canvas.height / 2;
+
+function draw() {
+    const scale = parseFloat(scaleInput.value) * 10; // スライダーの値で倍率決定
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // --- 背景のグリッド (同心円) ---
+    ctx.strokeStyle = "rgba(45, 106, 45, 0.8)";
+    ctx.lineWidth = 1;
+    for(let i=1; i<=6; i++) {
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, (canvas.width / 12) * i, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+
+    // --- 景勝地 (ターゲット) ---
+    locations.forEach(loc => {
+        const dx = (loc.lng - currentPos.lng) * scale;
+        const dy = (currentPos.lat - loc.lat) * scale;
+        const x = centerX + dx;
+        const y = centerY + dy;
+
+        // レーダーの円内に収まる場合のみ描画
+        const distFromCenter = Math.sqrt(dx*dx + dy*dy);
+        if (distFromCenter < canvas.width / 2 - 10) {
+            ctx.beginPath();
+            ctx.arc(x, y, 7, 0, Math.PI * 2);
+            ctx.fillStyle = "#ffbb00";
+            ctx.shadowBlur = 15;
+            ctx.shadowColor = "#ffbb00";
+            ctx.fill();
+            ctx.shadowBlur = 0; // 他への影響を防ぐ
+        }
+    });
+
+    // --- 現在地 (中心の矢印) ---
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY - 10);
+    ctx.lineTo(centerX - 7, centerY + 7);
+    ctx.lineTo(centerX + 7, centerY + 7);
+    ctx.closePath();
+    ctx.fillStyle = "#fff";
+    ctx.fill();
+}
+
+// スライダーを動かしたときに再描画
+scaleInput.addEventListener('input', draw);
+
+// 初期描画
+draw();
+</script>
+</body>
+</html>

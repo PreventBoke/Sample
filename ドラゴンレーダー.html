@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body { background: #222; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        #radar { background: #1a4d1a; border: 10px solid #555; border-radius: 50%; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+    </style>
+</head>
+<body>
+    <canvas id="radar" width="400" height="400"></canvas>
+
+<script>
+const canvas = document.getElementById('radar');
+const ctx = canvas.getContext('2d');
+
+// 1. データ設定
+const currentPos = { lat: 35.6812, lng: 139.7671 }; // 東京駅（現在地）
+const locations = [
+    { name: "富士山", lat: 35.3606, lng: 138.7274 },
+    { name: "厳島神社", lat: 34.2960, lng: 132.3199 },
+    { name: "松島", lat: 38.3675, lng: 141.0608 }
+];
+
+// 2. 描画設定
+const centerX = canvas.width / 2;
+const centerY = canvas.height / 2;
+const scale = 20; // 距離の倍率（調整用）
+
+function drawRadar() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 背景のグリッド線
+    ctx.strokeStyle = "#2d6a2d";
+    ctx.lineWidth = 1;
+    for(let i=1; i<=4; i++) {
+        ctx.beginPath();
+        ctx.arc(centerX, centerY, (canvas.width/8) * i, 0, Math.PI * 2);
+        ctx.stroke();
+    }
+
+    // 景勝地（ドラゴンボール）の描画
+    locations.forEach(loc => {
+        // 緯度経度の差分を計算（簡易的な平面投影）
+        const dx = (loc.lng - currentPos.lng) * scale;
+        const dy = (currentPos.lat - loc.lat) * scale; // 緯度は上がプラスなので反転
+
+        // レーダーの範囲内なら描画
+        const x = centerX + dx;
+        const y = centerY + dy;
+
+        ctx.beginPath();
+        ctx.arc(x, y, 8, 0, Math.PI * 2);
+        ctx.fillStyle = "#ffcc00"; // ドラゴンボール色
+        ctx.fill();
+        ctx.shadowBlur = 15;
+        ctx.shadowColor = "#ffcc00";
+    });
+
+    // 現在地（自分）
+    ctx.beginPath();
+    ctx.moveTo(centerX, centerY - 10);
+    ctx.lineTo(centerX - 7, centerY + 7);
+    ctx.lineTo(centerX + 7, centerY + 7);
+    ctx.closePath();
+    ctx.fillStyle = "#fff";
+    ctx.fill();
+}
+
+drawRadar();
+</script>
+</body>
+</html>
