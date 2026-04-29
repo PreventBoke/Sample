@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<HTML lang="ja">
+<HEAD>
+<META charset="utf-8" />
+<TITLE>BOKE防止プログラミング</TITLE>
+</HEAD>
+<BODY>
+
+<script>
+const tigers = [
+  { order: 1, name: "真弓明信", bats: "右", position: "ライト" },
+  { order: 2, name: "平田勝男", bats: "右", position: "ショート" },
+  { order: 3, name: "ランディ・バース", bats: "左", position: "ファースト" },
+  { order: 4, name: "掛布雅之", bats: "左", position: "サード" },
+  { order: 5, name: "岡田彰布", bats: "右", position: "レフト" },
+  { order: 6, name: "佐野仙好", bats: "右", position: "センター" },
+  { order: 7, name: "弘田澄男", bats: "左", position: "セカンド" },
+  { order: 8, name: "木戸克彦", bats: "右", position: "キャッチャー" },
+  { order: 9, name: "投手", bats: "-", position: "ピッチャー" }
+];
+
+function draw() {
+    // --- 景勝地 (ターゲット) ---
+    tigers.forEach(batter => {
+        alert(`${batter.order}番　${batter.position}　${batter.name}`);
+    });
+}
+
+// 初期描画
+draw();
+</script>
+
+</BODY>
+</HTML>
